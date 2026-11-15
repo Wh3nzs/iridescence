@@ -1,4 +1,8 @@
 import pygame
+
+from Character import Player
+
+    
 WIDTH, HIGHT = 800,600
 
 pygame.init()
@@ -11,7 +15,7 @@ pygame.display.set_caption("gmammama")
 clock = pygame.time.Clock()
 
 
-
+player = Player()
 fights = [
 
     ("Emperess of Light", " Doge all her attacks"),
@@ -27,13 +31,16 @@ card = pygame.Rect(8,50,184,48)
 def label(words,x,y):
     canvas.blit(font.render(words,True, "white"), (x,y))
 
-
+arena = pygame.draw.rect(canvas,"white", (70,70,60,60), 1)
 running = True
 while running:
+
+    dt = clock.tick(60) / 1000
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        if mode == "menu":
+        elif mode == "menu":
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_DOWN or event.key == pygame.K_s:
                     selected += 1
@@ -41,15 +48,13 @@ while running:
                     selected -= 1
                 elif event.key == pygame.K_RETURN:
                     mode = "battle"
+                    player.spawn(arena)
 
         elif mode == "battle":
              if event.type == pygame.KEYDOWN:
                  if event.key == pygame.K_ESCAPE:
                      mode = "menu"
-        
-        if event.type == pygame.KEYDOWN and pygame.K_g:
-            print(mode)
-        selected %= len(fights)
+
         
     canvas.fill((0,0,0))
     name, discription = fights[selected]
@@ -73,9 +78,17 @@ while running:
         pygame.draw.rect(canvas, (25, 25, 25), (8, 102, 184, 24))
         label(fights[next_index][0], 14, 108)
     else:
-        label(name,15,17)
-        pygame.draw.rect(canvas,"white", (60,40,80,80), 1)
-        label("esc to return", 10,132)
+
+        player.update(pygame.key.get_pressed(), arena, dt)
+        player.draw(canvas)
+    
+        label(name,0,7)
+        arena = pygame.draw.rect(canvas,"white", (70,70,60,60), 1)
+        label("esc to return", 0,140)
+
+        label("esc to return", 0,140)
+        label(f" H: {player.showHealth()} / 32",150,120)
+        
 
 
     pygame.transform.scale(canvas, window.get_size(), window)
