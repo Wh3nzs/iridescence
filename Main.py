@@ -10,7 +10,9 @@ pygame.init()
 canvas = pygame.Surface((200,150))
 window = pygame.display.set_mode((WIDTH,HIGHT))
 font = pygame.font.Font(None,14)
-pygame.display.set_caption("gmammama")
+pygame.display.set_caption("Iridescence")
+icon = pygame.image.load("assets/Heart.png").convert_alpha()
+pygame.display.set_icon(icon)
 
 clock = pygame.time.Clock()
 
@@ -51,11 +53,15 @@ while running:
                     player.spawn(arena)
 
         elif mode == "battle":
-             if event.type == pygame.KEYDOWN:
-                 if event.key == pygame.K_ESCAPE:
-                     mode = "menu"
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    mode = "menu"
 
-        
+                if event.key == pygame.K_SPACE:
+                    player.takeDamage(20)
+                 
+
+        selected %= len(fights)
     canvas.fill((0,0,0))
     name, discription = fights[selected]
 

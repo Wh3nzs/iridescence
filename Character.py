@@ -13,6 +13,9 @@ class Player():
         self.position.update(arena.center)
         self.rect.center = arena.center
 
+    def takeDamage(self,damage):
+        self.health -= damage
+
     def update(self,keys,arena, dt):
         left = keys[pygame.K_a] or keys[pygame.K_LEFT]
         right = keys[pygame.K_d] or keys[pygame.K_RIGHT]
