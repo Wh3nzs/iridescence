@@ -58,7 +58,7 @@ def start_fight():
     player.spawn(arena)
     player_turn = PlayerAttack(arena)
     dexter_battle = DexterBattle(arena, player_turn) if fights[selected][0] == "Dexter Morgan" else None
-    player.health = 32
+    player.health = player.health
     if dexter_battle is None:
         player_turn.start()
 
@@ -168,6 +168,7 @@ while running:
             if player.health <= 0:
                 death_screen.show(player_turn.hp, player_turn.max_hp)
                 mode = "dead"
+                player.health = player.maxHealth
             elif player_turn.hp <= 0 or (dexter_battle and dexter_battle.finished):
                 mode = "menu"
 
@@ -177,7 +178,7 @@ while running:
         label("esc to return", 0,140)
 
         label("esc to return", 0,140)
-        label(f" H: {player.showHealth()} / 32",150,120)
+        label(f" H: {player.showHealth()} / {player.maxHealth}",150,120)
         
 
 
