@@ -1,4 +1,4 @@
-from Projectiles import CenterBeam, SineRainProjectile, DashAttack
+from Projectiles import CenterBeam, SineRainProjectile, DashAttack, SyringeAttack
 
 
 class DexterBattle:
@@ -6,6 +6,7 @@ class DexterBattle:
         self.arena = arena
         self.player_turn = player_turn
         self.attacks = [
+            self.syringe,
             (
                 self.dash_from(90, sprite="Knife.png"),
 
@@ -18,12 +19,13 @@ class DexterBattle:
             ),
             self.player_attack,
             (
-                self.dash_from(180, 180, 270, sprite="Knife.png"),
+                self.dash_from(180, 170, 160,sprite="Knife.png"),
 
             ),
             (
                 self.dash_from(90, 180, 270, 360, sprite="Knife.png"),
                 self.beam_at("vertical", y=30),
+                self.beam_at("horizontal", y=30),
 
             ),
             self.player_attack,
@@ -34,8 +36,27 @@ class DexterBattle:
             ),
             (
                 self.dash_from(180, 180, 270, 360, 45, 60, sprite="Knife.png"),
+                self.beam_at("horizontal", y=10),
+                self.beam_at("horizontal", y=20),
                 self.beam_at("horizontal", y=30),
-                self.beam_at("vertical", y=30),
+                self.beam_at("horizontal", y=40),
+                self.beam_at("horizontal", y=50),
+                self.beam_at("horizontal", y=60),
+
+                
+
+                self.beam_at("vertical", x=10),
+                
+                self.beam_at("vertical", x=20),
+                
+                self.beam_at("vertical", x=30),
+                
+                self.beam_at("vertical", x=40),
+                
+                self.beam_at("vertical", x=50),
+                
+                self.beam_at("vertical", x=60),
+
 
             ),
             self.player_attack,
@@ -86,6 +107,9 @@ class DexterBattle:
         if self.player_turn is not None:
             self.player_turn.start()
         return []
+
+    def syringe(self, player):
+        return [SyringeAttack(self.arena)]
 
     def rain(self, player):
         return [RainAttack(self.arena)]

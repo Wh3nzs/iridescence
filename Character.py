@@ -8,7 +8,8 @@ class Player():
         self.rect = self.image.get_rect()
         self.position = pygame.Vector2(self.rect.center)
         self.speed = 60
-        self.health = 32
+        self.health = 500
+        self.maxHealth = self.health
     def spawn(self, arena):
         self.position.update(arena.center)
         self.rect.center = arena.center
@@ -39,8 +40,6 @@ class Player():
 
         print(self.position)
 
-    def showHealth(self):
-        return str(self.health)
     def draw(self, surface):
         surface.blit(self.image, self.rect)
 

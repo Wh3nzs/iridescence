@@ -123,6 +123,89 @@ class CenterBeam:
             draw_projectile(surface, self.rect, self.image)
 
 
+class SyringeAttack:
+    enter_time = 0.65  # Seconds to fly from above the arena to its center.
+    spin_time = 0.8
+    spin_turns = 2
+    warning_time = 0.3
+    speed = 160  # Canvas pixels per second (the window scales these up).
+    damage = 10
+
+    def __init__(self, arena):
+        self.art = load_dash_art("Syringe.png")
+        # Leave enough room for the whole sprite to disappear past an edge.
+        margin = max(self.art.get_size()) + 8
+        self.bounds = arena.inflate(margin * 2, margin * 2)
+        self.center = pygame.Vector2(arena.center)
+        self.start = pygame.Vector2(arena.centerx, self.bounds.top)
+        self.position = self.start.copy()
+        self.rect = pygame.Rect(0, 0, 5, 5)
+        self.rect.center = self.position
+        self.elapsed = 0.0
+        self.angle = 180.0  # The original art points up; enter pointing down.
+        self.direction = None
+        self.end = None
+        self.finished = False
+        self.hit_player = False
+        self.phase = "enter"
+
+    def update(self, player, dt):
+        if self.finished:
+            return
+        self.elapsed += dt
+        spin_end = self.enter_time + self.spin_time
+        dash_start = spin_end + self.warning_time
+
+        if self.elapsed < self.enter_time:
+            self.phase = "enter"
+            progress = self.elapsed / self.enter_time
+            self.position = self.start.lerp(self.center, progress)
+        elif self.elapsed < spin_end:
+            self.phase = "spin"
+            self.position = self.center.copy()
+            progress = (self.elapsed - self.enter_time) / self.spin_time
+            self.angle = 180 + 360 * self.spin_turns * progress
+        else:
+            if self.direction is None:
+                # Lock the player's location ONCE, after spinning, not at spawn.
+                offset = pygame.Vector2(player.rect.center) - self.center
+                # A player exactly in the center gives a zero-length vector.
+                self.direction = offset.normalize() if offset.length_squared() else pygame.Vector2(0, 1)
+                self.end = DashAttack.point_on_edge(self.bounds, self.center, self.direction)
+                self.angle = self.direction.angle_to(pygame.Vector2(0, -1))
+                self.position = self.center.copy()
+
+            if self.elapsed < dash_start:
+                self.phase = "aim"
+            else:
+                self.phase = "dash"
+                previous = self.position.copy()
+                distance = self.center.distance_to(self.end)
+                traveled = min(self.speed * (self.elapsed - dash_start), distance)
+                self.position = self.center + self.direction * traveled
+                # Sweep the small hitbox along its path so a slow frame cannot
+                # let the syringe skip straight through the player.
+                hit_area = player.rect.inflate(self.rect.width - 1, self.rect.height - 1)
+                if not self.hit_player and (
+                    hit_area.collidepoint(self.position)
+                    or hit_area.clipline(previous, self.position)
+                ):
+                    player.takeDamage(self.damage)
+                    self.hit_player = True
+                self.finished = traveled >= distance
+
+        self.rect.center = round(self.position.x), round(self.position.y)
+
+    def draw(self, surface):
+        if self.finished:
+            return
+        if self.phase == "aim":
+            pygame.draw.line(surface, "#40B3FF", self.center, self.end)
+        # Always rotate the original art, preserving its quality and center.
+        image = pygame.transform.rotate(self.art, self.angle % 360)
+        surface.blit(image, image.get_rect(center=self.rect.center))
+
+
 class DashAttack:
     warning_time = 0.5
     speed = 120  # Canvas pixels per second

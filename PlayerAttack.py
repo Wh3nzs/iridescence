@@ -4,7 +4,7 @@ import pygame
 
 
 class PlayerAttack:
-    full_health_pass_time = 0.9
+    full_health_pass_time = 0.45
     passes = 3
     shrink_time = 0.16
     result_time = 0.45

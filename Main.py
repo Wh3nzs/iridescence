@@ -178,7 +178,7 @@ while running:
         label("esc to return", 0,140)
 
         label("esc to return", 0,140)
-        label(f" H: {player.showHealth()} / {player.maxHealth}",150,120)
+        label(f" H: {player.health} / {player.maxHealth}",150,120)
         
 
 
