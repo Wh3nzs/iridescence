@@ -6,9 +6,11 @@ class DexterBattle:
         self.arena = arena
         self.player_turn = player_turn
         self.attacks = [
-            self.syringe,
+                self.syringe(spin_time=1,spin_turns=2),
             (
-                self.dash_from(90, sprite="Knife.png"),
+                self.dash_from(270, sprite="Knife.png"),
+                self.syringe(spin_time=1,spin_turns=2),
+                
 
 
             ),
@@ -35,7 +37,6 @@ class DexterBattle:
 
             ),
             (
-                self.dash_from(180, 180, 270, 360, 45, 60, sprite="Knife.png"),
                 self.beam_at("horizontal", y=10),
                 self.beam_at("horizontal", y=20),
                 self.beam_at("horizontal", y=30),
@@ -43,21 +44,32 @@ class DexterBattle:
                 self.beam_at("horizontal", y=50),
                 self.beam_at("horizontal", y=60),
 
-                
+
+            ),
+            (
+                self.beam_at("vertical", x=10),
+                self.beam_at("vertical", x=20),
+                self.beam_at("vertical", x=30),
+                self.beam_at("vertical", x=40),
+                self.beam_at("vertical", x=50),
+                self.beam_at("vertical", x=60),
+            ),
+
+            (
+                self.beam_at("horizontal", y=10),
+                self.beam_at("horizontal", y=20),
+                self.beam_at("horizontal", y=30),
+                self.beam_at("horizontal", y=40),
+                self.beam_at("horizontal", y=50),
+                self.beam_at("horizontal", y=60),
 
                 self.beam_at("vertical", x=10),
-                
                 self.beam_at("vertical", x=20),
-                
                 self.beam_at("vertical", x=30),
-                
                 self.beam_at("vertical", x=40),
-                
                 self.beam_at("vertical", x=50),
-                
                 self.beam_at("vertical", x=60),
-
-
+                self.syringe(),
             ),
             self.player_attack,
             (
@@ -108,8 +120,10 @@ class DexterBattle:
             self.player_turn.start()
         return []
 
-    def syringe(self, player):
-        return [SyringeAttack(self.arena)]
+    def syringe(self, spin_time=0.8, spin_turns=2):
+        def start(player):
+            return [SyringeAttack(self.arena, spin_time, spin_turns)]
+        return start
 
     def rain(self, player):
         return [RainAttack(self.arena)]
