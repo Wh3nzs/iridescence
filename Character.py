@@ -8,7 +8,7 @@ class Player():
         self.rect = self.image.get_rect()
         self.position = pygame.Vector2(self.rect.center)
         self.speed = 60
-        self.health = 500
+        self.health = 16
         self.maxHealth = self.health
     def spawn(self, arena):
         self.position.update(arena.center)
