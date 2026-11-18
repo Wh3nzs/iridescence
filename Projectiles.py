@@ -75,9 +75,9 @@ class CenterBeam:
     def __init__(self, arena, orientation="horizontal", x=None, y=None, sprite=None):
         inner = arena.inflate(-2, -2)
         if orientation == "horizontal":
-            size = (inner.width, 5)
+            size = (inner.width, 4)
         elif orientation == "vertical":
-            size = (5, inner.height)
+            size = (4, inner.height)
         else:
             raise ValueError("Beam orientation must be 'horizontal' or 'vertical'")
         self.orientation = orientation
@@ -131,7 +131,10 @@ class SyringeAttack:
     speed = 160  # Canvas pixels per second (the window scales these up).
     damage = 10
 
-    def __init__(self, arena):
+    def __init__(self, arena, spin_time = 0.8, spin_turns = 2):
+        self.spin_time = spin_time
+        self.spin_turns = spin_turns
+        
         self.art = load_dash_art("Syringe.png")
         # Leave enough room for the whole sprite to disappear past an edge.
         margin = max(self.art.get_size()) + 8
