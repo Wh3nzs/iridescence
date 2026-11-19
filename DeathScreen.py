@@ -22,26 +22,26 @@ class DeathScreen:
             image = image.subsurface(image.get_bounding_rect())
             self.buttons[action] = (image, image.get_rect(center=(x, 433)))
         self.selected = "retry"
-        self.focus_started = pygame.time.get_ticks()
-        self.hit_rects = {action: rect for action, (_, rect) in self.buttons.items()}
-        self.marker_rect = self.marker.get_rect()
+        self.focusStarted = pygame.time.get_ticks()
+        self.hitRects = {action: rect for action, (_, rect) in self.buttons.items()}
+        self.markerRect = self.marker.get_rect()
 
-    def show(self, hp, max_hp):
-        progress = max(0, min(1, (max_hp - hp) / max_hp))
+    def show(self, hp, maxHp):
+        progress = max(0, min(1, (maxHp - hp) / maxHp))
         # Feet follow the painted line from its left end to the flagpole.
-        self.marker_rect.midbottom = (round(104 + progress * (699 - 104)),
+        self.markerRect.midbottom = (round(104 + progress * (699 - 104)),
                                       round(304 - 3 * progress))
         self.selected = "retry"
-        self.focus_started = pygame.time.get_ticks()
+        self.focusStarted = pygame.time.get_ticks()
         for action, (_, rect) in self.buttons.items():
-            self.hit_rects[action] = rect
+            self.hitRects[action] = rect
 
     def select(self, action):
         if self.selected != action:
             self.selected = action
-            self.focus_started = pygame.time.get_ticks()
+            self.focusStarted = pygame.time.get_ticks()
 
-    def action_for(self, event):
+    def actionFor(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN,
                              pygame.K_w, pygame.K_s, pygame.K_a, pygame.K_d):
@@ -51,7 +51,7 @@ class DeathScreen:
             elif event.key == pygame.K_ESCAPE:
                 return "menu"
         elif event.type == pygame.MOUSEMOTION or (event.type == pygame.MOUSEBUTTONDOWN and event.button == 1):
-            for action, rect in self.hit_rects.items():
+            for action, rect in self.hitRects.items():
                 if rect.collidepoint(event.pos):
                     self.select(action)
                     if event.type == pygame.MOUSEBUTTONDOWN:
@@ -61,8 +61,8 @@ class DeathScreen:
     def draw(self, window):
         window.fill("black")
         window.blit(self.background, (0, 0))
-        window.blit(self.marker, self.marker_rect)
-        elapsed = (pygame.time.get_ticks() - self.focus_started) / 1000
+        window.blit(self.marker, self.markerRect)
+        elapsed = (pygame.time.get_ticks() - self.focusStarted) / 1000
         for action, (image, rect) in self.buttons.items():
             if action == self.selected:
                 grow = min(elapsed / 0.12, 1.0)
@@ -70,5 +70,5 @@ class DeathScreen:
                 image = pygame.transform.scale_by(image, 1 + 0.18 * grow)
                 image = pygame.transform.rotate(image, angle)
                 rect = image.get_rect(center=rect.center)
-            self.hit_rects[action] = rect
+            self.hitRects[action] = rect
             window.blit(image, rect)
