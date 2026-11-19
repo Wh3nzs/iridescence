@@ -69,6 +69,7 @@ class SineRainProjectile:
 
 
 class CenterBeam:
+    damage = 6
     warning_time = 0.8
     active_time = 0.5
 
@@ -105,7 +106,7 @@ class CenterBeam:
         self.elapsed += dt
         if self.warning_time <= self.elapsed and not self.finished:
             if not self.hit_player and self.rect.colliderect(player.rect):
-                player.takeDamage(20)
+                player.takeDamage(self.damage)
                 self.hit_player = True
 
     def draw(self, surface):
@@ -125,6 +126,8 @@ class CenterBeam:
 
 class PlasticWrapAttack:
     """Unroll a tiled strip, trapping touched players until the strip expires."""
+
+    damage = 0  # Applied once when caught; 0 means the wrap only traps.
 
     def __init__(self, arena, orientation="horizontal", x=None, y=None,
                  width=12, roll_time=1.0, hold_time=2.0, warning_time=0.8):
@@ -149,8 +152,17 @@ class PlasticWrapAttack:
         # The trail artwork tiles horizontally; rotate the finished strip for vertical use.
         path = Path(__file__).parent / "Assets"
         tile = pygame.image.load(path / "PlasticWrapTrail.png").convert_alpha()
+        # Remove vertical padding while keeping both horizontal tiling edges.
+        bounds = tile.get_bounding_rect()
+        if bounds:
+            tile = tile.subsurface((0, bounds.top, tile.get_width(), bounds.height))
         tile_width = max(1, round(tile.get_width() * int(width) / tile.get_height()))
-        tile = pygame.transform.scale(tile, (tile_width, int(width)))
+        # Filter first so thin source lines survive the reduction, then turn
+        # coverage into solid white pixels instead of leaving blurred gray edges.
+        tile = pygame.transform.smoothscale(tile, (tile_width, int(width)))
+        coverage = pygame.mask.from_surface(tile, threshold=32)
+        tile = coverage.to_surface(setcolor=(255, 255, 255, 255),
+                                   unsetcolor=(0, 0, 0, 0))
         length = self.lane.height if vertical else self.lane.width
         strip = pygame.Surface((length, int(width)), pygame.SRCALPHA)
         for offset in range(0, length, tile_width):
@@ -189,6 +201,8 @@ class PlasticWrapAttack:
             self.roll_position = (self.lane.centerx, revealed.bottom)
         self.rect = revealed.clip(self.inner)
         if self.rect.colliderect(player.rect):
+            if player not in self.caught_players:
+                player.takeDamage(self.damage)
             player.movement_locks.add(self)
             self.caught_players.add(player)
 
@@ -301,6 +315,7 @@ class SyringeAttack:
 
 
 class DashAttack:
+    damage = 4
     warning_time = 0.5
     speed = 120  # Canvas pixels per second
 
@@ -351,7 +366,7 @@ class DashAttack:
         self.rect.center = round(position.x), round(position.y)
 
         if not self.hit_player and self.rect.colliderect(player.rect):
-            player.takeDamage(10)
+            player.takeDamage(self.damage)
             self.hit_player = True
 
         self.finished = progress >= 1.0
@@ -363,3 +378,4 @@ class DashAttack:
             pygame.draw.rect(surface, "white", self.rect)
         else:
             surface.blit(self.image, self.image.get_rect(center=self.rect.center))
+
