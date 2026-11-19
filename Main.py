@@ -40,6 +40,8 @@ fights = [
     ("Benjaman Nettenyaho", "Don't get bombed")
     
 ]
+
+tries = [0,0,0]
 selected = 0
 mode = "menu"
 card = pygame.Rect(8,50,184,48)
@@ -51,6 +53,7 @@ def label(words,x,y):
 arena = pygame.draw.rect(canvas,"white", (70,70,60,60), 1)
 def start_fight():
     global mode, screen_shake, enemy_shake, enemy_lunge, player_turn, dexter_battle
+    tries[selected] += 1
     mode = "battle"
     screen_shake = Shake()
     enemy_shake = Shake()
@@ -126,6 +129,7 @@ while running:
         pygame.draw.rect(canvas, "white", card, 1)
         label(name, 14, 58)
         label(discription, 14, 78)
+        label(f"Try: {tries[selected]}", 14,88)
 
         # Next fight
         pygame.draw.rect(canvas, (25, 25, 25), (8, 102, 184, 24))
