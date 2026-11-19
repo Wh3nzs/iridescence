@@ -1,3 +1,5 @@
+import random
+
 from Projectiles import CenterBeam, SineRainProjectile, DashAttack, SyringeAttack, PlasticWrapAttack
 
 
@@ -5,78 +7,182 @@ class DexterBattle:
     def __init__(self, arena, player_turn=None):
         self.arena = arena
         self.player_turn = player_turn
+
+        # RANDOM ATTACKS - edit this list to choose the boss's random moves.
+        # After the script, play 1-3 random combos per player turn based on boss HP.
+        # A tuple here launches several attacks together, just like in self.attacks.
+        self.random_moves = [
+
+            (
+                self.wrap_at("horizontal", y=30),
+                self.wrap_at("vertical", x=30),
+                self.dash_from(270, sprite="Knife.png"),
+                self.dash_from(310, sprite="Knife.png"),
+                self.dash_from(230, sprite="Knife.png"),
+
+            ),
+            (
+                self.rain,
+                self.wrap_at("horizontal", y=45),
+                self.syringe(spin_time=1.5, spin_turns=1.5),
+
+
+            ),
+
+            (
+                self.beam_at("horizontal", x=15),
+                self.beam_at("horizontal", x=45),
+                self.beam_at("vertical", x=15),
+                self.beam_at("vertical", x=45),
+                self.dash_from(45, sprite="Knife.png"),
+                self.dash_from(135, sprite="Knife.png"),
+                self.dash_from(240, sprite="Knife.png"),
+                self.dash_from(310, sprite="Knife.png"),
+            ),
+            (
+                self.beam_at("horizontal", x=10),
+                self.beam_at("horizontal", x=20),
+                self.beam_at("horizontal", x=30),
+                self.beam_at("horizontal", x=40),
+                self.beam_at("horizontal", x=50),
+
+                self.beam_at("vertical", x=10),
+                self.beam_at("vertical", x=20),
+                self.beam_at("vertical", x=30),
+                self.beam_at("vertical", x=40),
+                self.beam_at("vertical", x=50),
+            ),
+
+            (
+                self.syringe(spin_time=1.2),
+                self.wrap_at("horizontal", y=30),
+                self.wrap_at("vertical", x=30),
+                self.beam_at("vertical", x=15),
+                self.beam_at("vertical", x=45),
+
+            ),
+            (
+                self.rain,
+                self.syringe(spin_time=1.2),
+                self.syringe(spin_time=1.7),
+
+            ),
+            (
+                self.syringe(spin_time=1.2),
+                self.wrap_at("horizontal", y=30),
+                self.beam_at("vertical", x=10),
+                self.beam_at("vertical", x=20),
+                self.beam_at("vertical", x=30),
+                self.beam_at("vertical", x=40),
+                self.beam_at("vertical", x=50),
+            ),
+
+            (
+                self.beam_at("vertical", x=10),
+                self.beam_at("vertical", x=20),
+                self.beam_at("vertical", x=30),
+                self.beam_at("vertical", x=40),
+                self.beam_at("vertical", x=50),
+                self.beam_at("vertical", x=60),
+                self.syringe(spin_time=2, spin_turns=2),
+                self.beam_at("horizontal", y=10),
+                self.beam_at("horizontal", y=20),
+                self.beam_at("horizontal", y=30),
+                self.beam_at("horizontal", y=40),
+                self.beam_at("horizontal", y=50),
+                self.beam_at("horizontal", y=60),
+            ),
+            (
+                self.syringe(spin_time=1, spin_turns=2),
+                self.syringe(spin_time=2, spin_turns=2),
+                self.syringe(spin_time=3, spin_turns=2),
+                self.syringe(spin_time=3.2, spin_turns=2),
+                self.syringe(spin_time=3.5, spin_turns=2),
+                self.syringe(spin_time=3.7, spin_turns=2),
+                self.wrap_at("horizontal", y=30),
+            ),
+            (
+                self.rain,
+                self.wrap_at("vertical", y=15),
+                self.wrap_at("vertical", y=45),
+
+            ),
+            (
+                self.wrap_at("vertical", y=15),
+                self.wrap_at("vertical", y=45),
+                self.dash_from(90, sprite="Knife.png"),
+                self.wrap_at("horizontal", y=15),
+                self.wrap_at("horizontal", y=45),                       
+            )
+        ]
+
         # Each tuple launches together; the next wave waits for every attack.
         # Three player turns before the finale keep even perfect hits from
         # ending this test early (four critical hits defeat Dexter).
         self.attacks = [
-            self.wrap_at("horizontal", y=30),
+
             self.wrap_at("vertical", x=30),
-            # Introduce every attack on its own.
             self.syringe(spin_time=1, spin_turns=2),
-            self.dash_from(90, sprite="Knife.png"),
-            self.beam_at("horizontal", y=30),
-            self.beam_at("vertical", x=30),
             self.rain,
             self.player_attack,
 
-            # Pair attacks: aimed pressure plus a lane to dodge.
             (
-                self.dash_from(90, 270, sprite="Knife.png"),
-                self.beam_at("horizontal", y=20),
-            ),
-            (
-                self.syringe(spin_time=1, spin_turns=2),
-                self.dash_from(180, 0, sprite="Knife.png"),
+                self.dash_from(45, sprite="Knife.png"),
+                self.dash_from(130, sprite="Knife.png"),
+                self.syringe(spin_time=.8, spin_turns=10),
+
             ),
             (
                 self.rain,
+                self.wrap_at("horizontal", y=50),
+                self.syringe(spin_time=1.5, spin_turns=2),
+
+
+            ),
+            (
                 self.beam_at("vertical", x=20),
                 self.beam_at("vertical", x=40),
-            ),
-            (
-                self.rain,
-                self.syringe(spin_time=1, spin_turns=2),
-            ),
-            self.player_attack,
-
-            # Direction changes, alternating lanes, then staggered syringes.
-            self.dash_from(160, 180, 200, sprite="Knife.png"),
-            (
-                self.beam_at("horizontal", y=15),
-                self.beam_at("horizontal", y=45),
-                self.dash_from(90, sprite="Knife.png"),
-            ),
-            (
-                self.beam_at("vertical", x=15),
-                self.beam_at("vertical", x=45),
-                self.dash_from(0, sprite="Knife.png"),
-            ),
-            (
-                self.syringe(spin_time=0.8, spin_turns=2),
-                self.syringe(spin_time=1.6, spin_turns=3),
-            ),
-            self.player_attack,
-
-            # Finale: all four attack types in the same wave.
-            (
-                self.rain,
-                self.syringe(spin_time=1.2, spin_turns=3),
-                self.dash_from(45, 225, sprite="Knife.png"),
                 self.beam_at("horizontal", y=30),
-                self.beam_at("vertical", x=30),
+                self.beam_at("horizontal", y=40),
+                self.syringe(spin_time=1, spin_turns=1),
             ),
-            self.player_attack,
+            (
+                self.beam_at("vertical", x=10),
+                self.beam_at("vertical", x=20),
+                self.beam_at("vertical", x=30),
+                self.beam_at("vertical", x=40),
+                self.beam_at("vertical", x=50),
+            ),
+
+            (
+                self.wrap_at("horizontal", y=30),
+                self.dash_from(45, sprite="Knife.png"),
+                self.dash_from(130, sprite="Knife.png"),
+                self.dash_from(240, sprite="Knife.png"),
+                self.dash_from(315, sprite="Knife.png"),
+                self.syringe(spin_time=0.8, spin_turns=1),
+            )
+
         ]
+
         self.attack_index = 0
         self.active_attacks = []
 
     @property
     def finished(self):
-        return self.attack_index >= len(self.attacks)
+        # Main.py ends the fight when the boss's HP reaches zero.
+        return False
 
     def update(self, player, dt):
-        if self.finished:
-            return False
+        if self.attack_index >= len(self.attacks):
+            # Recheck boss health after each player turn. Each selected tuple
+            # is one full combo, and combos play sequentially before the turn.
+            health_fraction = (self.player_turn.hp / self.player_turn.maxHp
+                               if self.player_turn is not None else 1.0)
+            combo_count = 3 if health_fraction <= 0.30 else 2 if health_fraction <= 0.50 else 1
+            self.attacks = [random.choice(self.random_moves) for _ in range(combo_count)]
+            self.attacks.append(self.player_attack)
+            self.attack_index = 0
         attack_started = not self.active_attacks
         if attack_started:
             step = self.attacks[self.attack_index]
@@ -135,7 +241,7 @@ class DexterBattle:
 
 
 class RainAttack:
-    lanes = (0.5, 0.2, 0.8, 0.35, 0.65, 0.2, 0.8, 0.35,0.2, 0.8, 0.35)
+    lanes = (0.5, 0.2, 0.8, 0.35, 0.65, 0.2, 0.8, 0.35, 0.2, 0.8, 0.35)
 
     def __init__(self, arena, sprite=None):
         self.arena = arena
@@ -152,7 +258,7 @@ class RainAttack:
         self.cooldown -= dt
         if self.next_lane < len(self.lanes) and self.cooldown <= 0:
             x = self.arena.left + round(self.lanes[self.next_lane] * self.arena.width)
-            self.drops.append(SineRainProjectile(x, self.arena.top - 12, self.sprite)) 
+            self.drops.append(SineRainProjectile(x, self.arena.top - 12, self.sprite))
             self.next_lane += 1
             self.cooldown += 0.2
 
