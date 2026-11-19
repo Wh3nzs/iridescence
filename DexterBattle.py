@@ -1,94 +1,71 @@
-from Projectiles import CenterBeam, SineRainProjectile, DashAttack, SyringeAttack
+from Projectiles import CenterBeam, SineRainProjectile, DashAttack, SyringeAttack, PlasticWrapAttack
 
 
 class DexterBattle:
     def __init__(self, arena, player_turn=None):
         self.arena = arena
         self.player_turn = player_turn
+        # Each tuple launches together; the next wave waits for every attack.
+        # Three player turns before the finale keep even perfect hits from
+        # ending this test early (four critical hits defeat Dexter).
         self.attacks = [
-                self.syringe(spin_time=1,spin_turns=2),
-            (
-                self.dash_from(270, sprite="Knife.png"),
-                self.syringe(spin_time=1,spin_turns=2),
-                
-
-
-            ),
-            (
-                self.dash_from(90, 180, sprite="Knife.png"),
-                self.beam_at("horizontal", y=30),
-
-            ),
-            self.player_attack,
-            (
-                self.dash_from(180, 170, 160,sprite="Knife.png"),
-
-            ),
-            (
-                self.dash_from(90, 180, 270, 360, sprite="Knife.png"),
-                self.beam_at("vertical", y=30),
-                self.beam_at("horizontal", y=30),
-
-            ),
-            self.player_attack,
-            (
-                self.dash_from(180, 180, 270, 360, 45, sprite="Knife.png"),
-
-
-            ),
-            (
-                self.beam_at("horizontal", y=10),
-                self.beam_at("horizontal", y=20),
-                self.beam_at("horizontal", y=30),
-                self.beam_at("horizontal", y=40),
-                self.beam_at("horizontal", y=50),
-                self.beam_at("horizontal", y=60),
-
-
-            ),
-            (
-                self.beam_at("vertical", x=10),
-                self.beam_at("vertical", x=20),
-                self.beam_at("vertical", x=30),
-                self.beam_at("vertical", x=40),
-                self.beam_at("vertical", x=50),
-                self.beam_at("vertical", x=60),
-            ),
-
-            (
-                self.beam_at("horizontal", y=10),
-                self.beam_at("horizontal", y=20),
-                self.beam_at("horizontal", y=30),
-                self.beam_at("horizontal", y=40),
-                self.beam_at("horizontal", y=50),
-                self.beam_at("horizontal", y=60),
-
-                self.beam_at("vertical", x=10),
-                self.beam_at("vertical", x=20),
-                self.beam_at("vertical", x=30),
-                self.beam_at("vertical", x=40),
-                self.beam_at("vertical", x=50),
-                self.beam_at("vertical", x=60),
-                self.syringe(),
-            ),
-            self.player_attack,
-            (
-                self.dash_from(180, 90, 180, 270, 360, 45, 60 , 105, sprite="Knife.png"),
-                self.beam_at("horizontal", y=15),
-                self.beam_at("horizontal", y=30),
-                self.beam_at("horizontal", y=45),
-
-            ),
-            (
-                self.dash_from(180, 90, 180, 270, 360, 45, 60 , 105 , 120, sprite="Knife.png"),
-                self.beam_at("horizontal", y=30),
-                self.beam_at("vertical", y=30),
-
-            ),
-            self.player_attack,
+            self.wrap_at("horizontal", y=30),
+            self.wrap_at("vertical", x=30),
+            # Introduce every attack on its own.
+            self.syringe(spin_time=1, spin_turns=2),
+            self.dash_from(90, sprite="Knife.png"),
+            self.beam_at("horizontal", y=30),
+            self.beam_at("vertical", x=30),
             self.rain,
+            self.player_attack,
 
-            
+            # Pair attacks: aimed pressure plus a lane to dodge.
+            (
+                self.dash_from(90, 270, sprite="Knife.png"),
+                self.beam_at("horizontal", y=20),
+            ),
+            (
+                self.syringe(spin_time=1, spin_turns=2),
+                self.dash_from(180, 0, sprite="Knife.png"),
+            ),
+            (
+                self.rain,
+                self.beam_at("vertical", x=20),
+                self.beam_at("vertical", x=40),
+            ),
+            (
+                self.rain,
+                self.syringe(spin_time=1, spin_turns=2),
+            ),
+            self.player_attack,
+
+            # Direction changes, alternating lanes, then staggered syringes.
+            self.dash_from(160, 180, 200, sprite="Knife.png"),
+            (
+                self.beam_at("horizontal", y=15),
+                self.beam_at("horizontal", y=45),
+                self.dash_from(90, sprite="Knife.png"),
+            ),
+            (
+                self.beam_at("vertical", x=15),
+                self.beam_at("vertical", x=45),
+                self.dash_from(0, sprite="Knife.png"),
+            ),
+            (
+                self.syringe(spin_time=0.8, spin_turns=2),
+                self.syringe(spin_time=1.6, spin_turns=3),
+            ),
+            self.player_attack,
+
+            # Finale: all four attack types in the same wave.
+            (
+                self.rain,
+                self.syringe(spin_time=1.2, spin_turns=3),
+                self.dash_from(45, 225, sprite="Knife.png"),
+                self.beam_at("horizontal", y=30),
+                self.beam_at("vertical", x=30),
+            ),
+            self.player_attack,
         ]
         self.attack_index = 0
         self.active_attacks = []
@@ -142,6 +119,14 @@ class DexterBattle:
         def start(player):
             return [DashAttack(self.arena, player, angle, sprite)
                     for angle in (degrees, *other_degrees)]
+        return start
+
+    def wrap_at(self, orientation="horizontal", x=None, y=None,
+                width=12, roll_time=1.0, hold_time=2.0, warning_time=0.8):
+        """Offsets are measured from the arena's left/top, just like beam_at."""
+        def start(player):
+            return [PlasticWrapAttack(self.arena, orientation, x, y,
+                                      width, roll_time, hold_time, warning_time)]
         return start
 
     def draw(self, surface):

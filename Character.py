@@ -10,7 +10,9 @@ class Player():
         self.speed = 60
         self.health = 16
         self.maxHealth = self.health
+        self.movement_locks = set()
     def spawn(self, arena):
+        self.movement_locks.clear()
         self.position.update(arena.center)
         self.rect.center = arena.center
 
@@ -18,6 +20,8 @@ class Player():
         self.health -= damage
 
     def update(self,keys,arena, dt):
+        if any(not attack.finished for attack in self.movement_locks):
+            return
         left = keys[pygame.K_a] or keys[pygame.K_LEFT]
         right = keys[pygame.K_d] or keys[pygame.K_RIGHT]
         up = keys[pygame.K_w] or keys[pygame.K_UP]
