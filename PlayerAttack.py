@@ -10,7 +10,8 @@ class PlayerAttack:
     shrinkTime = 0.16
     resultTime = 0.45
     expandTime = 0.24
-    sequenceLength = 4
+    baseSequenceLength = 3
+    maxSequenceDamage = 8  # Cap for the entire sequence, not each key.
     sequenceTime = 2.5  # Seconds to enter the entire sequence.
 
     def __init__(self, arena, enemyHp=30):
@@ -23,6 +24,7 @@ class PlayerAttack:
         self.attackMode = "meter"
         self.nextMode = "meter"  # Normal attack first, then WASD, alternating.
         self.sequence = []
+        self.sequenceLength = self.baseSequenceLength
         self.sequenceIndex = 0
         self.heldKeys = set()
         self.keyIcons = {}
@@ -48,6 +50,8 @@ class PlayerAttack:
         if not self.active and self.hp > 0:
             self.attackMode = mode or self.nextMode
             self.nextMode = "meter" if self.attackMode == "sequence" else "sequence"
+            healthSteps = min(3, max(0, (self.maxHp - self.hp) * 4 // self.maxHp))
+            self.sequenceLength = self.baseSequenceLength + healthSteps
             self.sequence = random.choices(tuple(self.keyIcons), k=self.sequenceLength)
             self.sequenceIndex = 0
             self.phase = "shrink"
@@ -77,7 +81,7 @@ class PlayerAttack:
         return True  # Every correct key gets feedback, not just the last one.
 
     def finishSequence(self):
-        fullDamage = max(1, (self.maxHp + 2) // 4)
+        fullDamage = min(self.maxSequenceDamage, max(1, (self.maxHp + 2) // 4))
         damage = fullDamage * self.sequenceIndex // len(self.sequence)
         self.finishAttempt(damage, critical=self.sequenceIndex == len(self.sequence))
 
