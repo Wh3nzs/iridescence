@@ -22,7 +22,7 @@ class DexterBattle:
 
             ),
             (
-                self.rain,
+                self.normalRain,
                 self.wrap_at("horizontal", y=45),
                 self.syringe(spin_time=1.5, spin_turns=1.5),
 
@@ -62,7 +62,7 @@ class DexterBattle:
 
             ),
             (
-                self.rain,
+                self.normalRain,
                 self.syringe(spin_time=1.2),
                 self.syringe(spin_time=1.7),
 
@@ -102,7 +102,7 @@ class DexterBattle:
                 self.wrap_at("horizontal", y=30),
             ),
             (
-                self.rain,
+                self.normalRain,
                 self.wrap_at("vertical", y=15),
                 self.wrap_at("vertical", y=45),
 
@@ -119,11 +119,16 @@ class DexterBattle:
         # Each tuple launches together; the next wave waits for every attack.
         # Three player turns before the finale keep even perfect hits from
         # ending this test early (four critical hits defeat Dexter).
+        # Rain choices: self.normalRain, self.rainWindLeft, self.rainWindRight
         self.attacks = [
-
+            (
+                self.normalRain,
+                self.rainWindLeft,
+                self.rainWindRight,
+            ),
             self.wrap_at("vertical", x=30),
             self.syringe(spin_time=1, spin_turns=2),
-            self.rain,
+            self.normalRain,
             self.player_attack,
 
             (
@@ -133,7 +138,7 @@ class DexterBattle:
 
             ),
             (
-                self.rain,
+                self.normalRain,
                 self.wrap_at("horizontal", y=50),
                 self.syringe(spin_time=1.5, spin_turns=2),
 
@@ -208,8 +213,17 @@ class DexterBattle:
             return [SyringeAttack(self.arena, spin_time, spin_turns)]
         return start
 
-    def rain(self, player):
+    def normalRain(self, player):
         return [RainAttack(self.arena)]
+
+    def rainWindLeft(self, player):
+        return [RainAttack(self.arena, windSpeed=-12)]
+
+    def rainWindRight(self, player):
+        return [RainAttack(self.arena, windSpeed=12)]
+
+    def rain(self, player):
+        return self.normalRain(player)
 
     def rain_with(self, sprite):
         def start(player):
@@ -243,9 +257,10 @@ class DexterBattle:
 class RainAttack:
     lanes = (0.5, 0.2, 0.8, 0.35, 0.65, 0.2, 0.8, 0.35, 0.2, 0.8, 0.35)
 
-    def __init__(self, arena, sprite=None):
+    def __init__(self, arena, sprite=None, windSpeed=0):
         self.arena = arena
         self.sprite = sprite
+        self.windSpeed = windSpeed
         self.drops = []
         self.next_lane = 0
         self.cooldown = 0.0
@@ -258,7 +273,7 @@ class RainAttack:
         self.cooldown -= dt
         if self.next_lane < len(self.lanes) and self.cooldown <= 0:
             x = self.arena.left + round(self.lanes[self.next_lane] * self.arena.width)
-            self.drops.append(SineRainProjectile(x, self.arena.top - 12, self.sprite))
+            self.drops.append(SineRainProjectile(x, self.arena.top - 12, self.sprite, self.windSpeed))
             self.next_lane += 1
             self.cooldown += 0.2
 

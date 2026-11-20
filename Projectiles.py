@@ -50,18 +50,21 @@ class SineRainProjectile:
     wavelength = 32
     damage = 4
 
-    def __init__(self, x, y, sprite=None):
+    def __init__(self, x, y, sprite=None, windSpeed=0):
         self.startX = x
         self.startY = y
+        self.windSpeed = windSpeed
+        self.elapsed = 0.0
         self.distance = 0.0
         self.rect = pygame.Rect(0, 0, 3, 3)
         self.image = loadSprite(sprite, self.rect.size) if sprite else None
         self.rect.center = x, y
 
     def update(self, dt):
+        self.elapsed += dt
         self.distance += self.fallSpeed * dt
         angle = tau * self.distance / self.wavelength
-        x = self.startX + self.amplitude * sin(angle)
+        x = self.startX + self.amplitude * sin(angle) + self.windSpeed * self.elapsed
         self.rect.center = round(x), round(self.startY + self.distance)
 
     def draw(self, surface):
