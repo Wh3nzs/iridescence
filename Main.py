@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pygame
 
 from Character import Player
@@ -26,6 +28,8 @@ placeholderEnemy = pygame.Surface((24, 24))
 placeholderEnemy.fill("white")
 
 deathScreen = DeathScreen()
+winScreen = pygame.image.load(Path(__file__).parent / "Assets" / "WinScreen.png").convert_alpha()
+winHint = pygame.font.Font(None, 24).render("Enter / Esc to return to menu", True, "white")
 clock = pygame.time.Clock()
 
 
@@ -93,6 +97,10 @@ while running:
             elif action == "menu":
                 mode = "menu"
 
+        elif mode == "win":
+            if event.type == pygame.KEYDOWN and event.key in (pygame.K_RETURN, pygame.K_ESCAPE):
+                mode = "menu"
+
         elif mode == "battle":
             if playerTurn.handleEvent(event):
                 screenShake.trigger(0.5 if playerTurn.attackMode == "sequence" else 1.0)
@@ -108,6 +116,13 @@ while running:
         selected %= len(fights)
     if mode == "dead":
         deathScreen.draw(window)
+        pygame.display.flip()
+        continue
+
+    if mode == "win":
+        window.fill("black")
+        pygame.transform.scale(winScreen, window.get_size(), window)
+        window.blit(winHint, winHint.get_rect(midbottom=(window.get_width() // 2, window.get_height() - 20)))
         pygame.display.flip()
         continue
 
@@ -174,7 +189,7 @@ while running:
                 mode = "dead"
                 player.health = player.maxHealth
             elif playerTurn.hp <= 0 or (dexterBattle and dexterBattle.finished):
-                mode = "menu"
+                mode = "win"
 
         hpLabel = font.render(f"H: {playerTurn.hp} / {playerTurn.maxHp}", True, "white")
         canvas.blit(hpLabel, hpLabel.get_rect(topright=(canvas.get_width() - 3, 7)))
